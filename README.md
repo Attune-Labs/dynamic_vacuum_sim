@@ -1,4 +1,4 @@
-# dynamic_vacuum_sim
+# Dynamic Vacuum Sim
 
 Hydrogenic spectra computed via the standard Coulomb/Rydberg model **and** the dynamic-vacuum acoustic framework from:
 
