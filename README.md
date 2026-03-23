@@ -1,4 +1,4 @@
-# dynamic\_vacuum\_sim
+# Dynamic Vacuum Sim
 
 **dynamic\_vacuum\_sim** computes hydrogenic energy levels, transition lines, and radial eigenfunctions using both the standard Coulomb–Schrödinger (Rydberg) model and the dynamic-vacuum acoustic framework introduced by White, Vera, Sylvester & Dudzinski in [*Phys. Rev. Research* **8**, 013264 (2026)](https://doi.org/10.1103/l8y7-r3rm). The package verifies exact isospectrality between the two models — the 1/n² Rydberg ladder is reproduced to machine precision with a single reduced-mass calibration and zero free parameters.
 
