@@ -46,27 +46,43 @@ def R_nl(
     r: NDArray[np.float64],
     model: str = "rydberg",
 ) -> NDArray[np.float64]:
-    """Normalized hydrogenic radial wave function R_{nℓ}(r).
+    """Normalized hydrogenic radial wave function R_{nℓ}(r)  [1/m^{3/2}].
 
     Eq. (13a) of White et al.::
 
-        R_{nℓ}(r) = N_{nℓ} (2κr)^ℓ exp(−κr) L^{2ℓ+1}_{n−ℓ−1}(2κr)
+        R_{nℓ}(r) = N_{nℓ} (2κr)^ℓ  exp(−κr)  L^{2ℓ+1}_{n−ℓ−1}(2κr)
+
+    Normalization (Sec. III, below Eq. 17)::
+
+        N_{nℓ} = (2κ)^{3/2}  √[(n−ℓ−1)! / (2n (n+ℓ)!)]
+
+    satisfying  ∫₀^∞ |R_{nℓ}|² r² dr = 1.
 
     Parameters
     ----------
-    n     : int
+    n : int
         Principal quantum number (≥ 1).
-    ell   : int
+    ell : int
         Orbital angular momentum quantum number (0 ≤ ℓ < n).
-    r     : ndarray
-        Radial positions in metres.
+    r : ndarray
+        Radial positions  [m].
     model : str
         ``"rydberg"`` or ``"dynamic_vacuum"`` (identical by isospectrality;
         included for API symmetry and future extensions).
 
     Returns
     -------
-    R : ndarray  — same shape as *r*.
+    R : ndarray
+        Radial wave function values  [1/m^{3/2}], same shape as *r*.
+
+    Raises
+    ------
+    ValueError
+        If quantum numbers violate n ≥ 1, ℓ ≥ 0, or ℓ < n.
+
+    References
+    ----------
+    White et al., Phys. Rev. Research 8, 013264 (2026), Eq. (13a), Sec. III.
     """
     _validate_quantum_numbers(n, ell)
     r = np.asarray(r, dtype=np.float64)
@@ -94,9 +110,11 @@ def radial_probability_density(
     r: NDArray[np.float64],
     model: str = "rydberg",
 ) -> NDArray[np.float64]:
-    """Radial probability density  r² |R_{nℓ}(r)|².
+    """Radial probability density r² |R_{nℓ}(r)|²  [1/m].
 
-    This is the quantity whose integral over r from 0 to ∞ equals 1.
+    The quantity whose integral over r from 0 to ∞ equals 1.
+    Related to the acoustic pressure-amplitude envelope in the
+    dynamic-vacuum picture (Sec. III of White et al.).
 
     Parameters
     ----------
@@ -104,7 +122,12 @@ def radial_probability_density(
 
     Returns
     -------
-    density : ndarray  — same shape as *r*.
+    density : ndarray
+        Probability density  [1/m], same shape as *r*.
+
+    References
+    ----------
+    White et al., Phys. Rev. Research 8, 013264 (2026), Sec. III.
     """
     R = R_nl(n, ell, r, model=model)
     return r**2 * R**2
@@ -117,19 +140,32 @@ def verify_orthonormality(
 ) -> list[dict]:
     """Verify ⟨R_{n'ℓ} | R_{nℓ}⟩ = δ_{n'n} on a numerical radial grid.
 
-    For each angular momentum ℓ = 0 … n_max−1, compute the overlap
-    integral for all pairs (n', n) with n', n ≥ ℓ+1.
+    For each angular momentum ℓ = 0 … n_max − 1, compute the overlap
+    integral for all pairs (n', n) with n', n ≥ ℓ + 1 using the
+    trapezoidal rule.  Normalization convention follows Sec. III of
+    White et al.
 
     Parameters
     ----------
-    n_max      : int   — largest n to include
-    r_max_bohr : float — upper integration limit in units of a₀
-    n_pts      : int   — number of grid points
+    n_max : int
+        Largest principal quantum number to include (default 4).
+    r_max_bohr : float
+        Upper integration limit in units of the Bohr radius a₀
+        (dimensionless; default 200.0).
+    n_pts : int
+        Number of radial grid points (default 8000).
 
     Returns
     -------
     list of dicts with keys:
-        ``n1``, ``n2``, ``ell``, ``overlap``, ``passed``
+        ``n1``, ``n2``  – principal quantum numbers (dimensionless)
+        ``ell``         – angular momentum quantum number (dimensionless)
+        ``overlap``     – numerical overlap integral (dimensionless)
+        ``passed``      – bool, True if |overlap − δ_{n1,n2}| < 1e-4
+
+    References
+    ----------
+    White et al., Phys. Rev. Research 8, 013264 (2026), Sec. III, Eq. (17).
     """
     r = np.linspace(0, r_max_bohr * C.A0, n_pts)
     dr = r[1] - r[0]

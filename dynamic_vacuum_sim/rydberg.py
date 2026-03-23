@@ -30,11 +30,13 @@ SERIES: dict[str, int] = {
 
 
 def level_energy(n: int) -> dict[str, float]:
-    """Compute hydrogenic bound-state energy for principal quantum number *n*.
+    """Compute hydrogenic bound-state energy |E_n| for principal quantum number *n*.
 
-    Uses the reduced-mass Rydberg constant R_H::
+    Uses the reduced-mass Rydberg formula (Table I of White et al.)::
 
         |E_n| = h c R_H / n²
+
+    where R_H = R_∞ · (μ / m_e) is the reduced-mass Rydberg constant.
 
     Parameters
     ----------
@@ -44,11 +46,20 @@ def level_energy(n: int) -> dict[str, float]:
     Returns
     -------
     dict with keys:
-        ``n``             – echo of input
-        ``energy_eV``     – |E_n| in electronvolts
-        ``energy_J``      – |E_n| in joules
-        ``frequency_Hz``  – f_n = |E_n|/h  in Hz
-        ``frequency_PHz`` – f_n in PHz
+        ``n``             – echo of input (dimensionless)
+        ``energy_eV``     – |E_n|  [eV]
+        ``energy_J``      – |E_n|  [J]
+        ``frequency_Hz``  – f_n = |E_n| / h  [Hz]
+        ``frequency_PHz`` – f_n  [PHz]
+
+    Raises
+    ------
+    ValueError
+        If *n* is not a positive integer.
+
+    References
+    ----------
+    White et al., Phys. Rev. Research 8, 013264 (2026), Table I, Eq. (20).
     """
     if not isinstance(n, int) or n < 1:
         raise ValueError(f"n must be a positive integer, got {n!r}")
@@ -72,7 +83,7 @@ def transition(n_upper: int, n_lower: int) -> dict[str, float]:
 
     Eq. (20) of White et al.::
 
-        f = c R_H (1/n₁² − 1/n₂²)
+        f = c R_H (1/n_lower² − 1/n_upper²)
 
     Parameters
     ----------
@@ -84,11 +95,22 @@ def transition(n_upper: int, n_lower: int) -> dict[str, float]:
     Returns
     -------
     dict with keys:
-        ``n_upper``         – echo
-        ``n_lower``         – echo
+        ``n_upper``         – echo (dimensionless)
+        ``n_lower``         – echo (dimensionless)
         ``frequency_Hz``    – transition frequency  [Hz]
         ``frequency_PHz``   – transition frequency  [PHz]
-        ``wavelength_nm``   – vacuum wavelength     [nm]
+        ``wavelength_nm``   – vacuum wavelength  [nm]
+
+    Raises
+    ------
+    TypeError
+        If *n_upper* or *n_lower* is not an integer.
+    ValueError
+        If *n_lower* < 1 or *n_upper* ≤ *n_lower*.
+
+    References
+    ----------
+    White et al., Phys. Rev. Research 8, 013264 (2026), Eq. (20), Table II.
     """
     if not isinstance(n_upper, int) or not isinstance(n_lower, int):
         raise TypeError("n_upper and n_lower must be integers")
@@ -114,17 +136,31 @@ def transition(n_upper: int, n_lower: int) -> dict[str, float]:
 def series(name: str, n_max: int = 7) -> list[dict[str, float]]:
     """Return all transitions in a named spectral series up to *n_max*.
 
+    Computes transition frequencies and wavelengths via :func:`transition`
+    for n_upper = n_lower + 1 … n_max, where n_lower is the series-defining
+    lower level (Lyman → 1, Balmer → 2, etc.).
+
     Parameters
     ----------
-    name  : str
+    name : str
         One of ``"lyman"``, ``"balmer"``, ``"paschen"``,
         ``"brackett"``, ``"pfund"`` (case-insensitive).
     n_max : int
-        Highest upper level to include.
+        Highest upper level to include (must be > n_lower for the
+        chosen series).
 
     Returns
     -------
     list of dicts – same keys as :func:`transition`.
+
+    Raises
+    ------
+    ValueError
+        If *name* is not a recognized series.
+
+    References
+    ----------
+    White et al., Phys. Rev. Research 8, 013264 (2026), Table II.
     """
     key = name.strip().lower()
     if key not in SERIES:

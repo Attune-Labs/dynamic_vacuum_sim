@@ -40,15 +40,21 @@ def plot_levels(
 ) -> matplotlib.figure.Figure:
     """Ladder diagram of hydrogenic energy levels E_1 … E_{n_max}.
 
+    Draws horizontal bars at −|E_n| [eV] for each level, using either
+    the standard Rydberg formula or the dynamic-vacuum mapping.
+
     Parameters
     ----------
-    n_max : int   — highest n to show
-    model : str   — ``"rydberg"`` or ``"dynamic_vacuum"``
-    ax    : Axes  — optional pre-existing axes
+    n_max : int
+        Highest principal quantum number to show (default 7).
+    model : str
+        ``"rydberg"`` or ``"dynamic_vacuum"`` (default ``"rydberg"``).
+    ax : matplotlib.axes.Axes or None
+        Optional pre-existing axes; a new figure is created if None.
 
     Returns
     -------
-    fig : matplotlib Figure
+    fig : matplotlib.figure.Figure
     """
     if ax is None:
         fig, ax = plt.subplots(figsize=(5, 7))
@@ -85,18 +91,26 @@ def plot_series(
 ) -> matplotlib.figure.Figure:
     """Grotrian-style diagram of selected spectral-line series.
 
-    Draws vertical arrows between energy levels, coloured by series.
+    Draws vertical arrows between energy levels, colour-coded by
+    series (Lyman, Balmer, Paschen, etc.).  Transition wavelengths
+    follow Eq. (20) of White et al.
 
     Parameters
     ----------
     series_names : list of str or None
-        Default: ``["lyman", "balmer", "paschen"]``.
+        Series to display (default ``["lyman", "balmer", "paschen"]``).
     n_max : int
-    ax    : Axes
+        Highest upper level to include (default 7).
+    ax : matplotlib.axes.Axes or None
+        Optional pre-existing axes; a new figure is created if None.
 
     Returns
     -------
-    fig : matplotlib Figure
+    fig : matplotlib.figure.Figure
+
+    References
+    ----------
+    White et al., Phys. Rev. Research 8, 013264 (2026), Eq. (20), Table II.
     """
     if series_names is None:
         series_names = ["lyman", "balmer", "paschen"]
@@ -160,19 +174,31 @@ def plot_radial(
     n_pts: int = 1000,
     ax: Optional[plt.Axes] = None,
 ) -> matplotlib.figure.Figure:
-    """Plot radial probability density r² |R_{nℓ}|² vs r/a₀.
+    """Plot radial probability density r² |R_{nℓ}|² vs r / a₀.
 
     Parameters
     ----------
-    n, ell  : quantum numbers
-    model   : ``"rydberg"`` or ``"dynamic_vacuum"``
-    r_max_bohr : upper r limit in units of a₀ (auto-scaled if None)
-    n_pts   : grid resolution
-    ax      : optional Axes
+    n : int
+        Principal quantum number (≥ 1).
+    ell : int
+        Orbital angular momentum quantum number (0 ≤ ℓ < n).
+    model : str
+        ``"rydberg"`` or ``"dynamic_vacuum"`` (default ``"rydberg"``).
+    r_max_bohr : float or None
+        Upper r-axis limit in units of a₀ (auto-scaled to
+        2.5 n² + 10 if None).
+    n_pts : int
+        Number of radial grid points (default 1000).
+    ax : matplotlib.axes.Axes or None
+        Optional pre-existing axes; a new figure is created if None.
 
     Returns
     -------
-    fig : matplotlib Figure
+    fig : matplotlib.figure.Figure
+
+    References
+    ----------
+    White et al., Phys. Rev. Research 8, 013264 (2026), Eq. (13a), Sec. III.
     """
     if r_max_bohr is None:
         r_max_bohr = float(2.5 * n**2 + 10)
@@ -207,9 +233,33 @@ def plot_radial_comparison(
     n_pts: int = 1000,
     ax: Optional[plt.Axes] = None,
 ) -> matplotlib.figure.Figure:
-    """Overlay Rydberg and dynamic-vacuum radial densities.
+    """Overlay Rydberg and dynamic-vacuum radial probability densities.
 
-    A visual confirmation of exact isospectrality.
+    A visual confirmation of exact isospectrality: both models produce
+    identical r² |R_{nℓ}(r)|² curves by construction (Sec. IV of
+    White et al.).
+
+    Parameters
+    ----------
+    n : int
+        Principal quantum number (≥ 1).
+    ell : int
+        Orbital angular momentum quantum number (0 ≤ ℓ < n).
+    r_max_bohr : float or None
+        Upper r-axis limit in units of a₀ (auto-scaled to
+        2.5 n² + 10 if None).
+    n_pts : int
+        Number of radial grid points (default 1000).
+    ax : matplotlib.axes.Axes or None
+        Optional pre-existing axes; a new figure is created if None.
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+
+    References
+    ----------
+    White et al., Phys. Rev. Research 8, 013264 (2026), Sec. IV.
     """
     if r_max_bohr is None:
         r_max_bohr = float(2.5 * n**2 + 10)

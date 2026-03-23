@@ -25,13 +25,29 @@ from . import rydberg
 
 
 def kappa_n(n: int) -> float:
-    """Bound-state inverse decay length  κ_n = β/(2n) = 1/(n a₀)  [1/m].
+    """Bound-state inverse decay length κ_n = β / (2n) = 1 / (n a₀)  [1/m].
 
-    Eq. (18) of White et al.
+    Eq. (18) of White et al.  The spatial eigenvalue of the
+    Helmholtz-type equation in the dynamic-vacuum framework.
 
     Parameters
     ----------
     n : int  (≥ 1)
+        Principal quantum number.
+
+    Returns
+    -------
+    kappa : float
+        Inverse decay length  [1/m].
+
+    Raises
+    ------
+    ValueError
+        If *n* is not a positive integer.
+
+    References
+    ----------
+    White et al., Phys. Rev. Research 8, 013264 (2026), Eq. (18).
     """
     if not isinstance(n, int) or n < 1:
         raise ValueError(f"n must be a positive integer, got {n!r}")
@@ -44,12 +60,31 @@ def kappa_n(n: int) -> float:
 
 
 def omega_n(n: int) -> float:
-    """Eigenfrequency  ω_n = D κ_n² = ω*/n²  [rad/s].
+    """Eigenfrequency ω_n = D κ_n² = ω* / n²  [rad/s].
 
-    Eq. (10) of White et al.:  ω_n = D β² / (4 n²).
+    Eq. (10) of White et al.: ω_n = D β² / (4 n²).
 
-    Computed as ω*/n² for maximal numerical precision (avoids
+    Computed as ω* / n² for maximal numerical precision (avoids
     accumulating rounding through D and κ separately).
+
+    Parameters
+    ----------
+    n : int  (≥ 1)
+        Principal quantum number.
+
+    Returns
+    -------
+    omega : float
+        Bound-state angular frequency  [rad/s].
+
+    Raises
+    ------
+    ValueError
+        If *n* is not a positive integer.
+
+    References
+    ----------
+    White et al., Phys. Rev. Research 8, 013264 (2026), Eqs. (10)–(11).
     """
     if not isinstance(n, int) or n < 1:
         raise ValueError(f"n must be a positive integer, got {n!r}")
@@ -102,11 +137,32 @@ def level_energy(n: int) -> dict[str, float]:
 
 
 def A_coeff(n: int) -> float:
-    """Frequency-dependent constitutive coefficient A(ω_n).
+    """Frequency-dependent constitutive coefficient A(ω_n)  [s² / m²].
 
-    Eq. (22):  A(ω_n) = −n² / (a₀² ω*²).
+    Eq. (22) of White et al.::
 
-    Always negative (reactive stop band ⇒ bound states).
+        A(ω_n) = −n² / (a₀² ω*²)
+
+    Always negative (reactive stop band → bound states).
+
+    Parameters
+    ----------
+    n : int  (≥ 1)
+        Principal quantum number.
+
+    Returns
+    -------
+    A : float
+        Constitutive coefficient  [s² / m²].
+
+    Raises
+    ------
+    ValueError
+        If *n* is not a positive integer.
+
+    References
+    ----------
+    White et al., Phys. Rev. Research 8, 013264 (2026), Eq. (22).
     """
     if not isinstance(n, int) or n < 1:
         raise ValueError(f"n must be a positive integer, got {n!r}")
@@ -114,11 +170,32 @@ def A_coeff(n: int) -> float:
 
 
 def C_coeff(n: int) -> float:
-    """Frequency-dependent constitutive coefficient C(ω_n).
+    """Frequency-dependent constitutive coefficient C(ω_n)  [s² / m].
 
-    Eq. (22):  C(ω_n) = 2 n⁴ / (a₀ ω*²).
+    Eq. (22) of White et al.::
 
-    Always positive (proton-induced increase of 1/c²_s near core).
+        C(ω_n) = 2 n⁴ / (a₀ ω*²)
+
+    Always positive (proton-induced increase of 1/c²_s near the core).
+
+    Parameters
+    ----------
+    n : int  (≥ 1)
+        Principal quantum number.
+
+    Returns
+    -------
+    C : float
+        Constitutive coefficient  [s² / m].
+
+    Raises
+    ------
+    ValueError
+        If *n* is not a positive integer.
+
+    References
+    ----------
+    White et al., Phys. Rev. Research 8, 013264 (2026), Eq. (22).
     """
     if not isinstance(n, int) or n < 1:
         raise ValueError(f"n must be a positive integer, got {n!r}")
@@ -131,14 +208,37 @@ def C_coeff(n: int) -> float:
 
 
 def k_eff_squared(r: float, n: int) -> float:
-    """Effective squared wave number at radius *r* for eigenfrequency ω_n.
+    """Effective squared wave number at radius *r* for eigenfrequency ω_n  [1/m²].
 
-    Eq. (7):  k²_eff(r) = α(ω_n) + β/r  =  −κ_n² + β/r.
+    Eq. (7) of White et al.::
+
+        k²_eff(r) = α(ω_n) + β / r  =  −κ_n² + β / r
+
+    The sign change (k²_eff = 0) at r = 2 n² a₀ marks the classical
+    turning point (this differs by a factor of 2 from the usual textbook
+    Coulomb turning point convention because of our specific α, β
+    calibration).
 
     Parameters
     ----------
-    r : float  — radial position [m]  (must be > 0)
-    n : int    — principal quantum number
+    r : float
+        Radial position  [m]  (must be > 0).
+    n : int
+        Principal quantum number (≥ 1).
+
+    Returns
+    -------
+    k_sq : float
+        Effective squared wave number  [1/m²].
+
+    Raises
+    ------
+    ValueError
+        If *r* ≤ 0.
+
+    References
+    ----------
+    White et al., Phys. Rev. Research 8, 013264 (2026), Eqs. (7), (18).
     """
     if r <= 0:
         raise ValueError(f"r must be positive, got {r}")
@@ -181,11 +281,33 @@ def verify_isospectrality(
 ) -> list[dict[str, float]]:
     """Compare dynamic-vacuum energies to Rydberg energies for n = 1 … n_max.
 
-    Raises ``AssertionError`` if any relative error exceeds *rtol*.
+    Verifies the central result of White et al.: with the calibration
+    D = ℏ / (2μ), β = 2 / a₀, the acoustic eigenspectrum is exactly
+    isospectral with the Coulomb / Rydberg result (Sec. IV).
+
+    Parameters
+    ----------
+    n_max : int
+        Highest principal quantum number to check (default 7).
+    rtol : float
+        Maximum allowed relative error (default 1e-12).
 
     Returns
     -------
-    list of dicts with keys: ``n``, ``E_rydberg_eV``, ``E_dv_eV``, ``rel_error``.
+    list of dicts with keys:
+        ``n``             – principal quantum number (dimensionless)
+        ``E_rydberg_eV``  – Rydberg energy  [eV]
+        ``E_dv_eV``       – dynamic-vacuum energy  [eV]
+        ``rel_error``     – |E_dv − E_ryd| / E_ryd  (dimensionless)
+
+    Raises
+    ------
+    AssertionError
+        If any relative error exceeds *rtol*.
+
+    References
+    ----------
+    White et al., Phys. Rev. Research 8, 013264 (2026), Sec. IV.
     """
     results: list[dict[str, float]] = []
     for n in range(1, n_max + 1):
