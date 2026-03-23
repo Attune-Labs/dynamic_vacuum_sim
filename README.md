@@ -27,11 +27,11 @@ import numpy as np
 
 # Ground-state energy (reduced-mass Rydberg)
 rydberg.level_energy(1)
-# {'n': 1, 'energy_eV': 13.598434..., 'frequency_PHz': 3.288051..., ...}
+# {'n': 1, 'energy_eV': 13.598287..., 'frequency_PHz': 3.288051..., ...}
 
 # Dynamic-vacuum mapping — identical result
 dynamic_vacuum.level_energy(1)
-# {'n': 1, 'energy_eV': 13.598434..., 'kappa_1m': ..., 'omega_rad': ..., ...}
+# {'n': 1, 'energy_eV': 13.598287..., 'kappa_1m': ..., 'omega_rad': ..., ...}
 
 # Verify isospectrality to machine precision
 dynamic_vacuum.verify_isospectrality(n_max=7, rtol=1e-12)
@@ -100,6 +100,17 @@ dynamic_vacuum_sim/
 | C(ω_n) = 2n⁴/(a₀ ω*²) | Eq. (22) | `dynamic_vacuum.C_coeff()` |
 | R_{nℓ}(r) via Laguerre | Eq. (13a) | `radial.R_nl()` |
 | ω² = c_L² k² + D² k⁴ | Eq. (A21) | `dynamic_vacuum.dispersion_full()` |
+
+## Examples
+
+The [`examples/`](examples/) directory contains ready-to-run demos:
+
+| File | What it does |
+|------|--------------|
+| [`quickstart.ipynb`](examples/quickstart.ipynb) | Jupyter notebook walking through every feature with inline plots |
+| [`demo.py`](examples/demo.py) | Standalone script — run `python examples/demo.py` for a full terminal tour |
+
+The notebook covers: energy levels, spectral lines, the dynamic-vacuum mapping, isospectrality verification, radial wave functions, dispersion curves, orthonormality checks, and all built-in plotting helpers.
 
 ## Running tests
 
