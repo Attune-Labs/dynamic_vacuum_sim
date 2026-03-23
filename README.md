@@ -12,6 +12,8 @@ The package demonstrates exact isospectrality between the two models: a single r
 ## Installation
 
 ```bash
+git clone https://github.com/Attune-Labs/dynamic_vacuum_sim.git
+cd dynamic_vacuum_sim
 pip install -e ".[dev]"
 ```
 
